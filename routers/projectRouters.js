@@ -18,14 +18,22 @@ router.get("/", (req, res) => {
 		});
 }); // WORKING
 router.get("/:id", (req, res) => {
-	ProjectDb.get(req.params.id)
-		.then((projects) => {
-			res.status(200).json(projects);
-		})
-		.catch((error) => {
-			console.log(error);
-			res.status(500).json({ message: "error retrieving the userss" });
-		});
+	try {
+		ProjectDb.get(req.params.id)
+			.then((projects) => {
+				if (projects !== null) {
+					res.status(201).json(projects);
+				} else {
+					res.status(404).json({ message: "not found" });
+				}
+			})
+			.catch((error) => {
+				console.log(error);
+				res.status(500).json({ message: "error retrieving the userss" });
+			});
+	} catch {
+		res.status(404).json({ message: "not found" });
+	}
 }); // WORKING
 router.get("/:id/actions", (req, res) => {
 	ProjectDb.getProjectActions(req.params.id)
@@ -107,19 +115,34 @@ router.post("/:id/action", (req, res) => {
 			.status(400)
 			.json({ message: "Please provide valid a description and title" });
 	} else {
-		try {
-			ActionDb.insert(newAction, req.params.id)
-				.then((result) => {
-					res.status(200).json(result);
-				})
-				.catch((error) => {
-					res.status(500).json({ message: "Action post failed!" });
-				});
-		} catch {
-			res.status(500).json({
-				error: "There was an error while saving the action to the database",
+		ProjectDb.get(req.params.id)
+			.then((action) => {
+				if (action !== null) {
+					try {
+						ActionDb.insert(newAction, req.params.id)
+							.then((result) => {
+								res.status(200).json({ message: "IT WORKED!" });
+							})
+							.catch((error) => {
+								res
+									.status(500)
+									.json({ message: "Action post failed!", error: error });
+							});
+					} catch {
+						res.status(500).json({ message: "some kind of error message" });
+					}
+				} else {
+					res
+						.status(404)
+						.json({ errorMessage: "THAT PROJECT DOES NOT EXIST!" });
+				}
+			})
+			.catch((error) => {
+				console.log(error);
+				res
+					.status(500)
+					.json({ message: "error retrieving the project actions" });
 			});
-		}
 	}
 }); // WORKING
 router.put("/:id/action/:id", (req, res) => {
