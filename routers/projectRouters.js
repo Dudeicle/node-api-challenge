@@ -163,6 +163,6 @@ router.delete("/:id/action/:id", (req, res) => {
 		.catch((error) => {
 			res.status(404).json({ message: "Could not find action to delete" });
 		});
-});
+}); // WORKING!
 
 module.exports = router;
