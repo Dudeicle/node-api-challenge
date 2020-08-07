@@ -3,7 +3,7 @@ const express = require("express");
 const helmet = require("helmet");
 
 // import routers
-const projectRouter = require("./routers/projectRouters");
+const projectsRouters = require("./apiRouters/projects-route");
 
 // not sure
 const server = express();
@@ -12,8 +12,8 @@ const server = express();
 server.use(express.json());
 server.use(helmet());
 
-// Telling server to use the endpoint within projectRouter after /api
-server.use("/api", projectRouter);
+// Telling server to use the endpoint within actionRouters/projectRouters after /api
+server.use("/api", projectsRouters);
 
 // the starting end point of just / - should see this when first opening page
 server.get("/", (req, res) => {
